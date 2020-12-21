@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/cli": "^2.13.1",
     "apollo-server": "^2.19.0",
     "nodemon": "^2.0.6"
   }
