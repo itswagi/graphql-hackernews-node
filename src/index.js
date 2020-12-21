@@ -1,31 +1,20 @@
 const { ApolloServer } = require('apollo-server');
+const { PrismaClient } = require('@prisma/client')
+const { getUserId } = require('./utils');
+const Query = require('./resolvers/Query')
+const Mutation = require('./resolvers/Mutation')
+const User = require('./resolvers/User')
+const Link = require('./resolvers/Link')
 const fs = require('fs');
 const path = require('path');
 
-let links = [{
-    id: 'link-0',
-    url: 'www.howtographql.com',
-    description: 'Fullstack tutorial for GraphQL'
-}]
-
-let idCount = links.length
+const prisma = new PrismaClient()
 
 const resolvers = {
-  Query: {
-    info: () => `This is the API of a Hackernews Clone`,
-    feed: () => links,
-  },
-  Mutation: {
-    post: (parent, args) => {
-       const link = {
-        id: `link-${idCount++}`,
-        description: args.description,
-        url: args.url,
-      }
-      links.push(link)
-      return link
-    }
-  },
+    Query,
+    Mutation,
+    User,
+    Link
 }
 
 const server = new ApolloServer({
@@ -34,6 +23,16 @@ const server = new ApolloServer({
         'utf8'
         ),
     resolvers,
+    context: ({ req }) => {
+        return {
+          ...req,
+          prisma,
+          userId:
+            req && req.headers.authorization
+              ? getUserId(req)
+              : null
+        };
+    }
 })
 
 server
